@@ -1,8 +1,11 @@
 """
-main securepass-pro executer 
+main securepass-pro executer
 """
+
 import sys
+
 from PyQt6.QtWidgets import QApplication
+
 from gui import SecurePassGUI
 
 

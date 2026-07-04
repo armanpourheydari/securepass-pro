@@ -1,14 +1,15 @@
 """
 main functions of encrypting and decrypting of passwords
 """
+
 import base64
 
 from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
 
-def encrypt_password(plain_text : str, master_password: str) -> str:
+
+def encrypt_password(plain_text: str, master_password: str) -> str:
     "encrypt a text with AES-GCM"
-    key = master_password.encode().ljust(32, b'\0')[:32]
+    key = master_password.encode().ljust(32, b"\0")[:32]
 
     cipher = AES.new(key, AES.MODE_GCM)
 
@@ -17,10 +18,11 @@ def encrypt_password(plain_text : str, master_password: str) -> str:
     combined = cipher.nonce + tag + ciphertext
     return base64.b64encode(combined).decode()
 
-def decrypt_password(encrtypted_b64: str, master_password: str)-> str:
+
+def decrypt_password(encrtypted_b64: str, master_password: str) -> str:
     "decrypt a text with AES-GCM"
 
-    key = master_password.encode().ljust(32, b'\0')[:32]
+    key = master_password.encode().ljust(32, b"\0")[:32]
 
     combined = base64.b64decode(encrtypted_b64)
 

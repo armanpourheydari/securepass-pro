@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "securepass-pro"
+version = "1.0.0"
+description = "Enterprise-grade password management tool"
+readme = "README.md"
+authors = [{name = "Arman Pourheydari", email = "arman.pourheydari@gmail.com"}]
+license = {text = "MIT"}
+requires-python = ">=3.8"
+dependencies = [
+    "PyQt6>=6.5.0",
+    "pyperclip>=1.8.2",
+    "openpyxl>=3.1.0",
+    "pycryptodome>=3.19.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I"]
+ignore = ["E501"]
+
+[tool.ruff.per-file-ignores]
+"gui.py" = ["F401", "F841"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.isort]
+profile = "black"
+line_length = 88

@@ -4,8 +4,6 @@ Unit tests for encryption and decryption functions
 """
 
 import unittest
-import os
-import tempfile
 from crypto_utils import encrypt_password, decrypt_password
 
 
@@ -21,13 +19,13 @@ class TestCrypto(unittest.TestCase):
         """Test that encryption and decryption work correctly"""
         # Encrypt
         encrypted = encrypt_password(self.test_password, self.master_password)
-        
+
         # Check that encrypted is different from original
         self.assertNotEqual(encrypted, self.test_password)
-        
+
         # Decrypt
         decrypted = decrypt_password(encrypted, self.master_password)
-        
+
         # Check that decrypted matches original
         self.assertEqual(decrypted, self.test_password)
 
@@ -40,18 +38,22 @@ class TestCrypto(unittest.TestCase):
         """Test that same password encrypts differently each time (nonce)"""
         enc1 = encrypt_password(self.test_password, self.master_password)
         enc2 = encrypt_password(self.test_password, self.master_password)
-        
+
         # They should be different because of random nonce
         self.assertNotEqual(enc1, enc2)
-        
+
         # But both should decrypt correctly
-        self.assertEqual(decrypt_password(enc1, self.master_password), self.test_password)
-        self.assertEqual(decrypt_password(enc2, self.master_password), self.test_password)
+        self.assertEqual(
+            decrypt_password(enc1, self.master_password), self.test_password
+        )
+        self.assertEqual(
+            decrypt_password(enc2, self.master_password), self.test_password
+        )
 
     def test_decrypt_wrong_password(self):
         """Test that wrong master password raises error"""
         encrypted = encrypt_password(self.test_password, self.master_password)
-        
+
         # Try to decrypt with wrong password
         with self.assertRaises(ValueError):
             decrypt_password(encrypted, "wrong_password")
@@ -59,10 +61,10 @@ class TestCrypto(unittest.TestCase):
     def test_decrypt_corrupted_data(self):
         """Test that corrupted encrypted data raises error"""
         encrypted = encrypt_password(self.test_password, self.master_password)
-        
+
         # Corrupt the data (change one character)
         corrupted = encrypted[:-1] + "A"
-        
+
         with self.assertRaises(ValueError):
             decrypt_password(corrupted, self.master_password)
 
@@ -89,7 +91,7 @@ class TestCrypto(unittest.TestCase):
     def test_multiple_passwords(self):
         """Test encrypting and decrypting multiple passwords"""
         passwords = ["pass1", "pass2", "pass3"]
-        
+
         for pwd in passwords:
             encrypted = encrypt_password(pwd, self.master_password)
             decrypted = decrypt_password(encrypted, self.master_password)
