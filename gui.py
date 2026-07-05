@@ -119,11 +119,11 @@ class CardDialog(QDialog):
         expiry_layout.addWidget(QLabel("Expiry (MM/YY):"))
         self.expiry_month = QLineEdit()
         self.expiry_month.setPlaceholderText("MM")
-        self.expiry_month.setFixedWidth(50)
+        self.expiry_month.setFixedWidth(70)
         expiry_layout.addWidget(self.expiry_month)
         self.expiry_year = QLineEdit()
         self.expiry_year.setPlaceholderText("YY")
-        self.expiry_year.setFixedWidth(50)
+        self.expiry_year.setFixedWidth(70)
         expiry_layout.addWidget(self.expiry_year)
         expiry_layout.addStretch()
         layout.addLayout(expiry_layout)
@@ -565,15 +565,10 @@ class SecurePassGUI(QMainWindow):
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(8)
 
-        self.copy_btn = QPushButton("Copy")
+        self.copy_btn = QPushButton("📜 Copy")
         self.copy_btn.setObjectName("copy_btn")
         self.copy_btn.clicked.connect(self._copy_password)
         btn_layout.addWidget(self.copy_btn)
-
-        refresh_btn = QPushButton("Regenerate")
-        refresh_btn.setObjectName("copy_btn")
-        refresh_btn.clicked.connect(self._on_generate)
-        btn_layout.addWidget(refresh_btn)
 
         card_layout.addLayout(btn_layout)
 
@@ -653,7 +648,7 @@ class SecurePassGUI(QMainWindow):
             "Enter your master password to access saved passwords and cards"
         )
         subtitle.setStyleSheet("""
-            font-size: 13px;
+            font-size: 12px;
             color: #8888aa;
             font-family: 'Segoe UI';
         """)
@@ -1233,30 +1228,39 @@ class SecurePassGUI(QMainWindow):
             QMessageBox.warning(self, "Error", f"Failed to load cards: {str(e)}")
 
     def _edit_card(self, row, column):
+        """Edit card on double-click - uses full data from vault"""
         if not self.master_password:
             return
 
         try:
             self.controller.set_master_password(self.master_password)
             cards = self.controller.get_cards()
-            if row < len(cards):
-                dialog = CardDialog(self, cards[row])
-                if dialog.exec() == QDialog.DialogCode.Accepted:
-                    data = dialog.get_data()
-                    if self.controller.update_card(
-                        row + 1,
-                        data["name"],
-                        data["number"],
-                        data["holder"],
-                        data["expiry_month"],
-                        data["expiry_year"],
-                        data["cvv"],
-                        data["type"],
-                    ):
-                        QMessageBox.information(self, "Success", "Card updated!")
-                        self._load_cards()
-                    else:
-                        QMessageBox.warning(self, "Error", "Failed to update card.")
+            
+            if row >= len(cards):
+                return
+            
+            card_data = cards[row]
+            
+            dialog = CardDialog(self, card_data)
+            if dialog.exec() == QDialog.DialogCode.Accepted:
+                data = dialog.get_data()
+                
+                if not data["name"] or not data["number"] or not data["holder"]:
+                    QMessageBox.warning(self, "Error", "Name, number and holder are required!")
+                    return
+                
+                if not data["number"].isdigit() or not data["cvv"].isdigit():
+                    QMessageBox.warning(self, "Error", "Card number and CVV must contain only digits!")
+                    return
+                
+                if self.controller.update_card(
+                    row + 1, data["name"], data["number"], data["holder"],
+                    data["expiry_month"], data["expiry_year"], data["cvv"], data["type"]
+                ):
+                    QMessageBox.information(self, "Success", "Card updated!")
+                    self._load_cards()
+                else:
+                    QMessageBox.warning(self, "Error", "Failed to update card.")
         except Exception as e:
             QMessageBox.critical(self, "Error", str(e))
 
