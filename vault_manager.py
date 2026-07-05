@@ -246,3 +246,107 @@ def update_card_in_vault(
         return False
     except Exception:
         return False
+
+
+# ========== NOTE FUNCTIONS ==========
+
+
+def save_note_to_vault(title: str, content: str, master_password: str) -> bool:
+    """Save a secure note to the vault"""
+    try:
+        if not verify_master_password(master_password):
+            return False
+
+        data = _load_vault(master_password)
+        if "notes" not in data:
+            data["notes"] = []
+
+        # Check if title already exists
+        for note in data["notes"]:
+            if note["title"].lower() == title.lower():
+                return False
+
+        # Encrypt content
+        encrypted_content = encrypt_password(content, master_password)
+
+        entry = {
+            "id": len(data["notes"]) + 1,
+            "title": title,
+            "content": encrypted_content,
+            "created": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }
+
+        data["notes"].append(entry)
+        _save_vault(data, master_password)
+        return True
+    except Exception:
+        return False
+
+
+def get_all_notes(master_password: str) -> list:
+    """Get all notes from the vault (decrypted)"""
+    try:
+        if not verify_master_password(master_password):
+            return []
+        data = _load_vault(master_password)
+        notes = []
+        for note in data.get("notes", []):
+            note_copy = note.copy()
+            try:
+                note_copy["content"] = decrypt_password(
+                    note["content"], master_password
+                )
+            except Exception:
+                note_copy["content"] = "[Decryption Error]"
+            notes.append(note_copy)
+        return notes
+    except Exception:
+        return []
+
+
+def delete_note_from_vault(note_id: int, master_password: str) -> bool:
+    """Delete a note from the vault by ID"""
+    try:
+        if not verify_master_password(master_password):
+            return False
+
+        data = _load_vault(master_password)
+        if "notes" not in data:
+            return False
+
+        new_notes = [n for n in data["notes"] if n["id"] != note_id]
+
+        if len(new_notes) == len(data["notes"]):
+            return False
+
+        data["notes"] = new_notes
+        _save_vault(data, master_password)
+        return True
+    except Exception:
+        return False
+
+
+def update_note_in_vault(
+    note_id: int, new_title: str, new_content: str, master_password: str
+) -> bool:
+    """Update a note in the vault"""
+    try:
+        if not verify_master_password(master_password):
+            return False
+
+        data = _load_vault(master_password)
+        if "notes" not in data:
+            return False
+
+        encrypted_content = encrypt_password(new_content, master_password)
+
+        for note in data["notes"]:
+            if note["id"] == note_id:
+                note["title"] = new_title
+                note["content"] = encrypted_content
+                _save_vault(data, master_password)
+                return True
+
+        return False
+    except Exception:
+        return False

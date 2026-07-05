@@ -7,12 +7,16 @@ from logic import check_password, generate_password
 from vault_manager import (
     create_vault,
     delete_card_from_vault,
+    delete_note_from_vault,
     delete_password_from_vault,
     get_all_cards,
+    get_all_notes,
     get_all_passwords,
     save_card_to_vault,
+    save_note_to_vault,
     save_password_to_vault,
     update_card_in_vault,
+    update_note_in_vault,
     update_password_in_vault,
     vault_exists,
     verify_master_password,
@@ -133,4 +137,32 @@ class PasswordController:
             cvv,
             card_type,
             self._master_password,
+        )
+
+    # ========== NOTE OPERATIONS ==========
+
+    def save_note(self, title: str, content: str) -> bool:
+        """Save a secure note to the vault"""
+        if not self._master_password:
+            raise ValueError("Master password not set!")
+        return save_note_to_vault(title, content, self._master_password)
+
+    def get_notes(self) -> list:
+        """Get all notes from the vault (decrypted)"""
+        if not self._master_password:
+            raise ValueError("Master password not set!")
+        return get_all_notes(self._master_password)
+
+    def delete_note(self, note_id: int) -> bool:
+        """Delete a note by ID"""
+        if not self._master_password:
+            raise ValueError("Master password not set!")
+        return delete_note_from_vault(note_id, self._master_password)
+
+    def update_note(self, note_id: int, new_title: str, new_content: str) -> bool:
+        """Update a note in the vault"""
+        if not self._master_password:
+            raise ValueError("Master password not set!")
+        return update_note_in_vault(
+            note_id, new_title, new_content, self._master_password
         )
