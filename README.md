@@ -75,7 +75,6 @@ SecurePass Pro is a powerful desktop application for **generating secure passwor
 
 ```
 securepass-pro
-├── .git
 ├── .gitignore
 ├── LICENSE
 ├── README.md

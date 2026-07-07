@@ -3,7 +3,12 @@ controller.py
 Bridge between GUI and Logic
 """
 
-from logic import check_password, generate_password
+from logic import (
+    calculate_entropy,
+    check_password,
+    estimate_crack_time,
+    generate_password,
+)
 from vault_manager import (
     create_vault,
     delete_card_from_vault,
@@ -33,7 +38,10 @@ class PasswordController:
         return generate_password(length)
 
     def check(self, password: str) -> dict:
-        return check_password(password)
+        result = check_password(password)
+        result["entropy"] = calculate_entropy(password)
+        result["crack_time"] = estimate_crack_time(password)
+        return result
 
     def set_master_password(self, password: str) -> None:
         self._master_password = password
@@ -166,3 +174,9 @@ class PasswordController:
         return update_note_in_vault(
             note_id, new_title, new_content, self._master_password
         )
+
+    def get_entropy(self, password: str) -> float:
+        return calculate_entropy(password)
+
+    def get_crack_time(self, password: str) -> dict:
+        return estimate_crack_time(password)

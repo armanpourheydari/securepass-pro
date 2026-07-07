@@ -3,12 +3,14 @@ Password Generator and Checker Tool
 A simple tool to generate strong passwords and check their security level.
 """
 
+import math
 import random
 import string
+from collections import Counter
 
 from common_passwords import COMMON_PASSWORDS
 
-ALL_CHARS = string.ascii_letters + string.digits + "!@#$%^&*()-_=+"
+ALL_CHARS = string.ascii_letters + string.digits + "!@#$%^&*()-_=+[]{};:<>?,./"
 KEYBOARD_PATTERNS = [
     "qwe",
     "wer",
@@ -258,6 +260,25 @@ def has_common_password(password):
     return False
 
 
+def has_excessive_repetition(password: str, max_repeat: int = 3) -> bool:
+    """
+    Check if any character repeats more than max_repeat times.
+
+    Args:
+        password (str): The password to check
+        max_repeat (int): Maximum allowed repetitions (default: 3)
+
+    Returns:
+        bool: True if any character repeats more than max_repeat times
+    """
+
+    char_counts = Counter(password)
+    for count in char_counts.values():
+        if count > max_repeat:
+            return True
+    return False
+
+
 def print_result(result):
     """Display password check results in a beautiful format"""
     score = result["score"]
@@ -306,17 +327,39 @@ def check_password(password: str) -> dict:
     has_lower = any(i.islower() for i in password)
     has_digit = any(i.isdigit() for i in password)
     has_symbol = any(i in "!@#$%^&*()" for i in password)
-    has_repetition = len(set(password)) < len(password)
+    
+    excessive_repeat = has_excessive_repetition(password, max_repeat=3)
+    
+    is_common = has_common_password(password)
+    is_keyboard = has_keyboard_pattern(password)
+    is_sequence = has_number_sequence(password)
+    
+    # محاسبه امتیاز هر بخش
+    upper_score = has_upper * 11
+    lower_score = has_lower * 5
+    digit_score = has_digit * 10
+    symbol_score = has_symbol * 15
+    repeat_score = 5 if not excessive_repeat else 0
+    common_score = 10 if not is_common else 0
+    keyboard_score = 10 if not is_keyboard else 0
+    sequence_score = 10 if not is_sequence else 0
+    
+    # جمع کل
     score = (
-        length_score + (has_upper * 11) + ((not has_repetition) * 5) + (has_lower * 5)
+        length_score
+        + upper_score
+        + lower_score
+        + digit_score
+        + symbol_score
+        + repeat_score
+        + common_score
+        + keyboard_score
+        + sequence_score
     )
-    score += (
-        (has_digit * 10)
-        + (has_symbol * 15)
-        + ((not has_common_password(password)) * 10)
-    )
-    score += ((not has_keyboard_pattern) * 10) + ((not has_number_sequence) * 10)
     score = min(100, max(0, score))
+    if score == 100 and length < 16:
+        score = 99
+    
     level = ""
     if 0 <= score < 30:
         level = "🔴 Very Weak"
@@ -348,7 +391,7 @@ def check_password(password: str) -> dict:
         suggestions.append("🚫 Remove sequential numbers like '123' or '456'")
     if has_keyboard_pattern(password):
         suggestions.append("⌨️ Remove keyboard patterns like 'qwerty' or 'asdf'")
-    if has_repetition:
+    if has_excessive_repetition(password):
         suggestions.append("♻️ Reduce repeated characters, use more variety")
     if has_common_password(password):
         suggestions.append("⚠️ Remove common words (hackers know these!)")
@@ -358,6 +401,109 @@ def check_password(password: str) -> dict:
         "level": level,
         "suggestions": suggestions,
     }
+
+
+def calculate_entropy(password: str) -> float:
+    """Calculating password entropy based on character length and variety"""
+    if not password:
+        return 0.0
+
+    char_set_size = 0
+    if any(c.islower() for c in password):
+        char_set_size += 26
+    if any(c.isupper() for c in password):
+        char_set_size += 26
+    if any(c.isdigit() for c in password):
+        char_set_size += 10
+    if any(c in "!@#$%^&*()-_=+[]{};:<>?,./" for c in password):
+        char_set_size += 32
+
+    if char_set_size == 0:
+        return 0.0
+
+    entropy = len(password) * math.log2(char_set_size)
+    return round(entropy, 2)
+
+
+def format_crack_time(seconds: float) -> str:
+    """
+    Convert crack time in seconds to a human-readable approximate format.
+    """
+    if seconds <= 0:
+        return "Instant"
+
+    # تعریف واحدها
+    units = [
+        (60, "seconds"),
+        (3600, "minutes"),
+        (86400, "hours"),
+        (31536000, "days"),
+        (31536000 * 365, "years"),
+        (31536000 * 365 * 100, "centuries"),
+    ]
+
+    # پیدا کردن واحد مناسب
+    for threshold, unit in reversed(units):
+        if seconds >= threshold * 10:  # تقریباً
+            value = seconds / threshold
+            if unit == "centuries" and value > 1000:
+                return f"~10^{int(math.log10(value))} {unit}"
+            if unit == "years" and value > 1000:
+                return f"~{int(value):,} years"
+            if unit == "days" and value > 100:
+                return f"~{int(value):,} days"
+            if value >= 10:
+                return f"~{value:.0f} {unit}"
+            return f"~{value:.1f} {unit}"
+
+    return "~0 seconds"
+
+
+def estimate_crack_time(password: str, guesses_per_second: int = 1_000_000_000) -> dict:
+    """Estimating the time it takes to crack a password using the Brute-Force method"""
+    if not password:
+        return {"seconds": 0, "time_str": "Instant", "combinations": 0}
+
+    char_set_size = 0
+    if any(c.islower() for c in password):
+        char_set_size += 26
+    if any(c.isupper() for c in password):
+        char_set_size += 26
+    if any(c.isdigit() for c in password):
+        char_set_size += 10
+    if any(c in "!@#$%^&*()-_=+[]{};:<>?,./" for c in password):
+        char_set_size += 32
+
+    if char_set_size == 0:
+        return {"seconds": 0, "time_str": "Instant", "combinations": 0}
+
+    length = len(password)
+    combinations = char_set_size ** length
+    seconds = combinations / guesses_per_second
+
+    time_str = format_crack_time(seconds)
+
+    return {
+        "seconds": seconds,
+        "time_str": time_str,
+        "combinations": combinations,
+        "char_set_size": char_set_size,
+        "length": length,
+    }
+
+
+def get_entropy_level(entropy: float) -> dict:
+    """Determines the level of entropy based on its value"""
+    if entropy >= 80:
+        return {"level": "Excellent", "color": "#4a9eff", "emoji": "🔵"}
+    elif entropy >= 60:
+        return {"level": "Good", "color": "#4caf50", "emoji": "🟢"}
+    elif entropy >= 40:
+        return {"level": "Medium", "color": "#ffc107", "emoji": "🟡"}
+    elif entropy >= 20:
+        return {"level": "Weak", "color": "#ff9800", "emoji": "🟠"}
+    else:
+        return {"level": "Very Weak", "color": "#f44336", "emoji": "🔴"}
 
 
 if __name__ == "__main__":
