@@ -4,7 +4,8 @@ Unit tests for encryption and decryption functions
 """
 
 import unittest
-from crypto_utils import encrypt_password, decrypt_password
+
+from crypto_utils import decrypt_password, encrypt_password
 
 
 class TestCrypto(unittest.TestCase):

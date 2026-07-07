@@ -2,6 +2,7 @@
 tests/test_vault.py
 Unit tests for check vault security
 """
+
 import os
 import unittest
 

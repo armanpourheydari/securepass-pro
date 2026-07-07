@@ -327,13 +327,13 @@ def check_password(password: str) -> dict:
     has_lower = any(i.islower() for i in password)
     has_digit = any(i.isdigit() for i in password)
     has_symbol = any(i in "!@#$%^&*()" for i in password)
-    
+
     excessive_repeat = has_excessive_repetition(password, max_repeat=3)
-    
+
     is_common = has_common_password(password)
     is_keyboard = has_keyboard_pattern(password)
     is_sequence = has_number_sequence(password)
-    
+
     # محاسبه امتیاز هر بخش
     upper_score = has_upper * 11
     lower_score = has_lower * 5
@@ -343,7 +343,7 @@ def check_password(password: str) -> dict:
     common_score = 10 if not is_common else 0
     keyboard_score = 10 if not is_keyboard else 0
     sequence_score = 10 if not is_sequence else 0
-    
+
     # جمع کل
     score = (
         length_score
@@ -359,7 +359,7 @@ def check_password(password: str) -> dict:
     score = min(100, max(0, score))
     if score == 100 and length < 16:
         score = 99
-    
+
     level = ""
     if 0 <= score < 30:
         level = "🔴 Very Weak"
@@ -478,7 +478,7 @@ def estimate_crack_time(password: str, guesses_per_second: int = 1_000_000_000) 
         return {"seconds": 0, "time_str": "Instant", "combinations": 0}
 
     length = len(password)
-    combinations = char_set_size ** length
+    combinations = char_set_size**length
     seconds = combinations / guesses_per_second
 
     time_str = format_crack_time(seconds)

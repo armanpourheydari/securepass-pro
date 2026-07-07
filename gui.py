@@ -230,10 +230,7 @@ class SavePasswordDialog(QDialog):
             self.eye_btn.setText("👁️")
 
     def get_data(self):
-        return (
-            self.name_input.text().strip(),
-            self.password_input.text().strip()
-        )
+        return (self.name_input.text().strip(), self.password_input.text().strip())
 
 
 class CardDialog(QDialog):
@@ -325,21 +322,25 @@ class CardDialog(QDialog):
 
         expiry_layout = QHBoxLayout()
         expiry_layout.addWidget(QLabel("Expiry (MM/YY):"))
-        
+
         self.expiry_month = QLineEdit()
         self.expiry_month.setPlaceholderText("MM")
         self.expiry_month.setFixedWidth(50)
         self.expiry_month.setMaxLength(2)
-        self.expiry_month.textChanged.connect(lambda t: self._validate_digit(t, self.expiry_month))
+        self.expiry_month.textChanged.connect(
+            lambda t: self._validate_digit(t, self.expiry_month)
+        )
         expiry_layout.addWidget(self.expiry_month)
-        
+
         self.expiry_year = QLineEdit()
         self.expiry_year.setPlaceholderText("YY")
         self.expiry_year.setFixedWidth(50)
         self.expiry_year.setMaxLength(2)
-        self.expiry_year.textChanged.connect(lambda t: self._validate_digit(t, self.expiry_year))
+        self.expiry_year.textChanged.connect(
+            lambda t: self._validate_digit(t, self.expiry_year)
+        )
         expiry_layout.addWidget(self.expiry_year)
-        
+
         expiry_layout.addStretch()
         layout.addLayout(expiry_layout)
 
@@ -348,24 +349,26 @@ class CardDialog(QDialog):
         self.cvv_input.setPlaceholderText("123")
         self.cvv_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.cvv_input.setMaxLength(4)
-        self.cvv_input.textChanged.connect(lambda t: self._validate_digit(t, self.cvv_input))
+        self.cvv_input.textChanged.connect(
+            lambda t: self._validate_digit(t, self.cvv_input)
+        )
         layout.addWidget(self.cvv_input)
 
         # ========== دکمه‌ها ==========
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
-        
+
         self.save_btn = QPushButton("Save Card")
-        self.save_btn.setAutoDefault(False)   # ✅ جلوگیری از پیش‌فرض شدن
+        self.save_btn.setAutoDefault(False)  # ✅ جلوگیری از پیش‌فرض شدن
         self.save_btn.clicked.connect(self.accept)
         btn_layout.addWidget(self.save_btn)
 
         cancel_btn = QPushButton("Cancel")
         cancel_btn.setObjectName("cancel")
-        cancel_btn.setAutoDefault(False)      # ✅ جلوگیری از پیش‌فرض شدن
+        cancel_btn.setAutoDefault(False)  # ✅ جلوگیری از پیش‌فرض شدن
         cancel_btn.clicked.connect(self.reject)
         btn_layout.addWidget(cancel_btn)
-        
+
         layout.addLayout(btn_layout)
 
         # ========== Enter Key Navigation (بعد از دکمه‌ها) ==========
@@ -380,7 +383,7 @@ class CardDialog(QDialog):
 
     def _validate_digit(self, text, field):
         if text and not text.isdigit():
-            field.setText(''.join(filter(str.isdigit, text)))
+            field.setText("".join(filter(str.isdigit, text)))
 
     def _populate_fields(self):
         self.name_input.setText(self.card_data.get("name", ""))
@@ -504,9 +507,9 @@ class NoteDialog(QDialog):
         # ========== Buttons ==========
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
-        
+
         self.save_btn = QPushButton("Save Note")
-        self.save_btn.setAutoDefault(False)   # ✅ جلوگیری از پیش‌فرض شدن
+        self.save_btn.setAutoDefault(False)  # ✅ جلوگیری از پیش‌فرض شدن
         self.save_btn.clicked.connect(self.accept)
         btn_layout.addWidget(self.save_btn)
 
@@ -515,7 +518,7 @@ class NoteDialog(QDialog):
         cancel_btn.setAutoDefault(False)
         cancel_btn.clicked.connect(self.reject)
         btn_layout.addWidget(cancel_btn)
-        
+
         layout.addLayout(btn_layout)
 
         # ========== Enter Key Navigation ==========
@@ -524,7 +527,10 @@ class NoteDialog(QDialog):
     def eventFilter(self, obj, event):
         """گرفتن Ctrl+Enter در QTextEdit برای ثبت"""
         if obj == self.content_input and event.type() == QEvent.Type.KeyPress:
-            if event.key() == Qt.Key.Key_Return and event.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            if (
+                event.key() == Qt.Key.Key_Return
+                and event.modifiers() == Qt.KeyboardModifier.ControlModifier
+            ):
                 self.save_btn.click()
                 return True
         return super().eventFilter(obj, event)
@@ -891,7 +897,7 @@ class SecurePassGUI(QMainWindow):
         input_container.addWidget(self.check_input)
 
         self.check_eye_btn = QPushButton("👁️")
-        self.check_eye_btn.setFixedSize(50,50)
+        self.check_eye_btn.setFixedSize(50, 50)
         self.check_eye_btn.setStyleSheet("""
             QPushButton {
                 background-color: #2a2a48;
@@ -1044,7 +1050,9 @@ class SecurePassGUI(QMainWindow):
 
         self.password_display = QLineEdit()
         self.password_display.setReadOnly(True)
-        self.password_display.setPlaceholderText("Your secure password will appear here")
+        self.password_display.setPlaceholderText(
+            "Your secure password will appear here"
+        )
         gen_layout.addWidget(self.password_display)
 
         # Copy button with reference
@@ -1149,7 +1157,9 @@ class SecurePassGUI(QMainWindow):
         self.master_entry.setMaximumWidth(300)
         self.master_entry.setMinimumHeight(48)
         self.master_entry.returnPressed.connect(self._unlock_vault_action)
-        unlock_layout.addWidget(self.master_entry, alignment=Qt.AlignmentFlag.AlignCenter)
+        unlock_layout.addWidget(
+            self.master_entry, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
         self.show_hide_btn = QPushButton("👁️")
         self.show_hide_btn.setFixedSize(48, 48)
@@ -1315,8 +1325,12 @@ class SecurePassGUI(QMainWindow):
 
         self.cards_table = DeselectableTable()
         self.cards_table.setColumnCount(5)
-        self.cards_table.setHorizontalHeaderLabels(["Name", "Type", "Number", "Expiry", "Holder"])
-        self.cards_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.cards_table.setHorizontalHeaderLabels(
+            ["Name", "Type", "Number", "Expiry", "Holder"]
+        )
+        self.cards_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.Stretch
+        )
         self.cards_table.setAlternatingRowColors(True)
         self.cards_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.cards_table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
@@ -1381,7 +1395,9 @@ class SecurePassGUI(QMainWindow):
         self.notes_table.horizontalHeader().setSectionResizeMode(
             1, QHeaderView.ResizeMode.Stretch
         )
-        self.notes_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Fixed)
+        self.notes_table.horizontalHeader().setSectionResizeMode(
+            2, QHeaderView.ResizeMode.Fixed
+        )
         self.notes_table.setColumnWidth(2, 80)
         self.notes_table.setAlternatingRowColors(True)
         self.notes_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
@@ -1438,7 +1454,9 @@ class SecurePassGUI(QMainWindow):
         return tab
 
     def _build_footer(self, parent):
-        footer = QLabel("🔒 All operations are performed locally. Your passwords never leave your device.")
+        footer = QLabel(
+            "🔒 All operations are performed locally. Your passwords never leave your device."
+        )
         footer.setStyleSheet("color: #606080; font-size: 9px; font-family: 'Segoe UI';")
         footer.setAlignment(Qt.AlignmentFlag.AlignCenter)
         parent.addWidget(footer)
@@ -1501,7 +1519,9 @@ class SecurePassGUI(QMainWindow):
             }}
         """)
         self.gen_strength_label.setText(f"{level_text} ({score}%)")
-        self.gen_strength_label.setStyleSheet(f"color: {color}; font-size: 16px; font-weight: 700;")
+        self.gen_strength_label.setStyleSheet(
+            f"color: {color}; font-size: 16px; font-weight: 700;"
+        )
 
         entropy = result.get("entropy", 0)
         crack_time = result.get("crack_time", {}).get("time_str", "--")
@@ -1565,7 +1585,9 @@ class SecurePassGUI(QMainWindow):
             color = "#f44336"
 
         self.level_label.setText(level)
-        self.level_label.setStyleSheet(f"color: {color}; font-size: 16px; font-weight: 700;")
+        self.level_label.setStyleSheet(
+            f"color: {color}; font-size: 16px; font-weight: 700;"
+        )
 
         entropy = result.get("entropy", 0)
         crack_time = result.get("crack_time", {}).get("time_str", "--")
@@ -1643,7 +1665,9 @@ class SecurePassGUI(QMainWindow):
                         self._load_cards()
                         self._load_notes()
                         self.master_entry.clear()
-                        QMessageBox.information(self, "Success", "Vault created successfully!")
+                        QMessageBox.information(
+                            self, "Success", "Vault created successfully!"
+                        )
                     else:
                         QMessageBox.warning(self, "Error", "Failed to create vault.")
             else:
@@ -1663,7 +1687,9 @@ class SecurePassGUI(QMainWindow):
             try:
                 self.controller.set_master_password(self.master_password)
                 if self.controller.save_password(name, password):
-                    QMessageBox.information(self, "Success", f"Password '{name}' saved!")
+                    QMessageBox.information(
+                        self, "Success", f"Password '{name}' saved!"
+                    )
                     self._load_vault()
                 else:
                     QMessageBox.warning(self, "Error", "Failed to save password.")
@@ -1680,7 +1706,9 @@ class SecurePassGUI(QMainWindow):
             self.vault_table.setRowCount(len(passwords))
             for row, pwd in enumerate(passwords):
                 self.vault_table.setItem(row, 0, QTableWidgetItem(pwd.get("name", "")))
-                self.vault_table.setItem(row, 1, QTableWidgetItem(pwd.get("password", "")))
+                self.vault_table.setItem(
+                    row, 1, QTableWidgetItem(pwd.get("password", ""))
+                )
         except Exception as e:
             QMessageBox.warning(self, "Error", f"Failed to load vault: {str(e)}")
 
@@ -1700,12 +1728,18 @@ class SecurePassGUI(QMainWindow):
         current_name = name_item.text()
         current_password = pass_item.text()
 
-        new_name, ok = QInputDialog.getText(self, "Edit Password", "Name:", text=current_name)
+        new_name, ok = QInputDialog.getText(
+            self, "Edit Password", "Name:", text=current_name
+        )
         if not ok:
             return
 
         new_password, ok = QInputDialog.getText(
-            self, "Edit Password", "Password:", QLineEdit.EchoMode.Password, text=current_password
+            self,
+            "Edit Password",
+            "Password:",
+            QLineEdit.EchoMode.Password,
+            text=current_password,
         )
         if not ok:
             return
@@ -1723,7 +1757,9 @@ class SecurePassGUI(QMainWindow):
     def _delete_selected_password(self):
         selected = self.vault_table.currentRow()
         if selected < 0:
-            QMessageBox.warning(self, "No Selection", "Please select a password to delete.")
+            QMessageBox.warning(
+                self, "No Selection", "Please select a password to delete."
+            )
             return
 
         name_item = self.vault_table.item(selected, 0)
@@ -1763,8 +1799,13 @@ class SecurePassGUI(QMainWindow):
             try:
                 self.controller.set_master_password(self.master_password)
                 if self.controller.save_card(
-                    data["name"], data["number"], data["holder"],
-                    data["expiry_month"], data["expiry_year"], data["cvv"], data["type"]
+                    data["name"],
+                    data["number"],
+                    data["holder"],
+                    data["expiry_month"],
+                    data["expiry_year"],
+                    data["cvv"],
+                    data["type"],
                 ):
                     QMessageBox.information(self, "Success", "Card saved successfully!")
                     self._load_cards()
@@ -1789,7 +1830,9 @@ class SecurePassGUI(QMainWindow):
                 self.cards_table.setItem(row, 2, QTableWidgetItem(masked))
                 expiry = f"{card.get('expiry_month', '')}/{card.get('expiry_year', '')}"
                 self.cards_table.setItem(row, 3, QTableWidgetItem(expiry))
-                self.cards_table.setItem(row, 4, QTableWidgetItem(card.get("holder", "")))
+                self.cards_table.setItem(
+                    row, 4, QTableWidgetItem(card.get("holder", ""))
+                )
         except Exception as e:
             QMessageBox.warning(self, "Error", f"Failed to load cards: {str(e)}")
 
@@ -1807,15 +1850,25 @@ class SecurePassGUI(QMainWindow):
             if dialog.exec() == QDialog.DialogCode.Accepted:
                 data = dialog.get_data()
                 if not data["name"] or not data["number"] or not data["holder"]:
-                    QMessageBox.warning(self, "Error", "Name, number and holder are required!")
+                    QMessageBox.warning(
+                        self, "Error", "Name, number and holder are required!"
+                    )
                     return
                 if not data["number"].isdigit() or not data["cvv"].isdigit():
-                    QMessageBox.warning(self, "Error", "Card number and CVV must contain only digits!")
+                    QMessageBox.warning(
+                        self, "Error", "Card number and CVV must contain only digits!"
+                    )
                     return
 
                 if self.controller.update_card(
-                    row + 1, data["name"], data["number"], data["holder"],
-                    data["expiry_month"], data["expiry_year"], data["cvv"], data["type"]
+                    row + 1,
+                    data["name"],
+                    data["number"],
+                    data["holder"],
+                    data["expiry_month"],
+                    data["expiry_year"],
+                    data["cvv"],
+                    data["type"],
                 ):
                     QMessageBox.information(self, "Success", "Card updated!")
                     self._load_cards()
@@ -1882,7 +1935,9 @@ class SecurePassGUI(QMainWindow):
             notes = self.controller.get_notes()
             self.notes_table.setRowCount(len(notes))
             for row, note in enumerate(notes):
-                self.notes_table.setItem(row, 0, QTableWidgetItem(note.get("title", "")))
+                self.notes_table.setItem(
+                    row, 0, QTableWidgetItem(note.get("title", ""))
+                )
                 content = note.get("content", "")
                 preview = content[:50] + ("..." if len(content) > 50 else "")
                 self.notes_table.setItem(row, 1, QTableWidgetItem(preview))
@@ -1906,7 +1961,9 @@ class SecurePassGUI(QMainWindow):
                     }
                 """)
                 view_btn.setToolTip("View note")
-                view_btn.clicked.connect(lambda checked, r=row: self._view_note_content(r))
+                view_btn.clicked.connect(
+                    lambda checked, r=row: self._view_note_content(r)
+                )
                 self.notes_table.setCellWidget(row, 2, view_btn)
         except Exception as e:
             QMessageBox.warning(self, "Error", f"Failed to load notes: {str(e)}")
@@ -1965,7 +2022,9 @@ class SecurePassGUI(QMainWindow):
             layout.setSpacing(12)
 
             title_label = QLabel(f"📌 {title}")
-            title_label.setStyleSheet("font-size: 18px; font-weight: bold; color: #f2c94c;")
+            title_label.setStyleSheet(
+                "font-size: 18px; font-weight: bold; color: #f2c94c;"
+            )
             layout.addWidget(title_label)
 
             content_display = QTextEdit()
@@ -2001,7 +2060,9 @@ class SecurePassGUI(QMainWindow):
             if dialog.exec() == QDialog.DialogCode.Accepted:
                 data = dialog.get_data()
                 if not data["title"] or not data["content"]:
-                    QMessageBox.warning(self, "Error", "Title and content are required!")
+                    QMessageBox.warning(
+                        self, "Error", "Title and content are required!"
+                    )
                     return
 
                 if self.controller.update_note(row + 1, data["title"], data["content"]):
@@ -2050,9 +2111,10 @@ class SecurePassGUI(QMainWindow):
                 QMessageBox.warning(self, "Empty", "No passwords to export.")
                 return
             file_path, _ = QFileDialog.getSaveFileName(
-                self, "Export Passwords as TXT",
+                self,
+                "Export Passwords as TXT",
                 f"passwords_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
-                "Text Files (*.txt)"
+                "Text Files (*.txt)",
             )
             if not file_path:
                 return
@@ -2066,7 +2128,9 @@ class SecurePassGUI(QMainWindow):
                     f.write(f"     Password: {pwd.get('password', '')}\n")
                     f.write("-" * 60 + "\n")
                 f.write(f"\nTotal: {len(passwords)} passwords\n")
-            QMessageBox.information(self, "Success", f"Passwords exported to:\n{file_path}")
+            QMessageBox.information(
+                self, "Success", f"Passwords exported to:\n{file_path}"
+            )
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to export: {str(e)}")
 
@@ -2080,9 +2144,10 @@ class SecurePassGUI(QMainWindow):
                 QMessageBox.warning(self, "Empty", "No passwords to export.")
                 return
             file_path, _ = QFileDialog.getSaveFileName(
-                self, "Export Passwords as Excel",
+                self,
+                "Export Passwords as Excel",
                 f"passwords_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
-                "Excel Files (*.xlsx)"
+                "Excel Files (*.xlsx)",
             )
             if not file_path:
                 return
@@ -2100,7 +2165,9 @@ class SecurePassGUI(QMainWindow):
             ws.column_dimensions["B"].width = 30
             ws.column_dimensions["C"].width = 40
             wb.save(file_path)
-            QMessageBox.information(self, "Success", f"Passwords exported to:\n{file_path}")
+            QMessageBox.information(
+                self, "Success", f"Passwords exported to:\n{file_path}"
+            )
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to export: {str(e)}")
 
@@ -2114,9 +2181,10 @@ class SecurePassGUI(QMainWindow):
                 QMessageBox.warning(self, "Empty", "No cards to export.")
                 return
             file_path, _ = QFileDialog.getSaveFileName(
-                self, "Export Cards as TXT",
+                self,
+                "Export Cards as TXT",
                 f"cards_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
-                "Text Files (*.txt)"
+                "Text Files (*.txt)",
             )
             if not file_path:
                 return
@@ -2130,7 +2198,9 @@ class SecurePassGUI(QMainWindow):
                     f.write(f"     Type: {card.get('type', '')}\n")
                     f.write(f"     Number: {card.get('number', '')}\n")
                     f.write(f"     Holder: {card.get('holder', '')}\n")
-                    f.write(f"     Expiry: {card.get('expiry_month', '')}/{card.get('expiry_year', '')}\n")
+                    f.write(
+                        f"     Expiry: {card.get('expiry_month', '')}/{card.get('expiry_year', '')}\n"
+                    )
                     f.write(f"     CVV: {card.get('cvv', '')}\n")
                     f.write("-" * 60 + "\n")
                 f.write(f"\nTotal: {len(cards)} cards\n")
@@ -2148,9 +2218,10 @@ class SecurePassGUI(QMainWindow):
                 QMessageBox.warning(self, "Empty", "No cards to export.")
                 return
             file_path, _ = QFileDialog.getSaveFileName(
-                self, "Export Cards as Excel",
+                self,
+                "Export Cards as Excel",
                 f"cards_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
-                "Excel Files (*.xlsx)"
+                "Excel Files (*.xlsx)",
             )
             if not file_path:
                 return
@@ -2170,7 +2241,9 @@ class SecurePassGUI(QMainWindow):
                 ws[f"C{i+1}"] = card.get("type", "")
                 ws[f"D{i+1}"] = card.get("number", "")
                 ws[f"E{i+1}"] = card.get("holder", "")
-                ws[f"F{i+1}"] = f"{card.get('expiry_month', '')}/{card.get('expiry_year', '')}"
+                ws[f"F{i+1}"] = (
+                    f"{card.get('expiry_month', '')}/{card.get('expiry_year', '')}"
+                )
                 ws[f"G{i+1}"] = card.get("cvv", "")
             ws.column_dimensions["A"].width = 8
             ws.column_dimensions["B"].width = 20
@@ -2194,9 +2267,10 @@ class SecurePassGUI(QMainWindow):
                 QMessageBox.warning(self, "Empty", "No notes to export.")
                 return
             file_path, _ = QFileDialog.getSaveFileName(
-                self, "Export Notes as TXT",
+                self,
+                "Export Notes as TXT",
                 f"notes_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
-                "Text Files (*.txt)"
+                "Text Files (*.txt)",
             )
             if not file_path:
                 return
@@ -2225,9 +2299,10 @@ class SecurePassGUI(QMainWindow):
                 QMessageBox.warning(self, "Empty", "No notes to export.")
                 return
             file_path, _ = QFileDialog.getSaveFileName(
-                self, "Export Notes as Excel",
+                self,
+                "Export Notes as Excel",
                 f"notes_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
-                "Excel Files (*.xlsx)"
+                "Excel Files (*.xlsx)",
             )
             if not file_path:
                 return
